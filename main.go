@@ -28,24 +28,26 @@ func build_url(q string) url.URL {
 	return base_query
 }
 
-func request() {}
+func request(u string, q string, res *ResponseBody) {
+	resp, err := http.Get(u)
+	if err != nil {
+		log.Fatal(err)
+		fmt.Println("The following movie was not found: ", q)
+	}
+	if resp.StatusCode != 200 {
+		log.Fatal(err)
+	}
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(res)
+}
 
 func main() {
 	flag.Parse()
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
 	if query != "" {
 		url := build_url(query)
-		resp, err := http.Get(url.String())
-		if err != nil {
-			log.Fatal(err)
-			fmt.Println("The following movie was not found: ", *search)
-		}
-		if resp.StatusCode != 200 {
-			log.Fatal(err)
-		}
 		actor_list := ResponseBody{}
-		defer resp.Body.Close()
-		err = json.NewDecoder(resp.Body).Decode(&actor_list)
+		request(url.String(), *search, &actor_list)
 		fmt.Println(actor_list)
 		for _, value := range strings.Split(actor_list.Actors, ", ") {
 			fmt.Println(value)
