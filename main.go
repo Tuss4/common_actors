@@ -1,19 +1,37 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
-	// "net/http"
+	"log"
+	"net/http"
 	"strings"
-	//"log"
 )
 
+type ResponseBody struct {
+	Actors string
+}
+
 var search = flag.String("s", "None", "search for a movie or series")
-var url = "http://omdbapi.com/?r=json&plot=short&t="
+var base_query = "http://omdbapi.com/?r=json&plot=short&t="
 
 func main() {
 	flag.Parse()
 	fmt.Println("Search has value ", *search)
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
-	fmt.Println(query)
+	url := base_query + query
+	fmt.Println(url)
+
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if resp.StatusCode != 200 {
+		log.Fatal(err)
+	}
+	actor_list := ResponseBody{}
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&actor_list)
+	fmt.Println(actor_list)
 }
