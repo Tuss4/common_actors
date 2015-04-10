@@ -18,10 +18,8 @@ var base_query = "http://omdbapi.com/?r=json&plot=short&t="
 
 func main() {
 	flag.Parse()
-	fmt.Println("Search has value ", *search)
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
 	url := base_query + query
-	fmt.Println(url)
 
 	resp, err := http.Get(url)
 	if err != nil {
