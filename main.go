@@ -14,35 +14,43 @@ type ResponseBody struct {
 	Actors string
 }
 
-var search = flag.String("s", "None", "search for a movie or series")
+var search = flag.String("s", "", "search for a movie or series")
 var base_query url.URL
 
-// = "http://omdbapi.com/?r=json&plot=short&t="
-
-func main() {
+func build_url(q string) url.URL {
 	base_query.Scheme = "http"
 	base_query.Host = "omdbapi.com"
 	the_query := base_query.Query()
 	the_query.Set("r", "json")
 	the_query.Add("plot", "short")
+	the_query.Add("t", q)
+	base_query.RawQuery = the_query.Encode()
+	return base_query
+}
+
+func request() {}
+
+func main() {
 	flag.Parse()
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
-	the_query.Add("t", query)
-	base_query.RawQuery = the_query.Encode()
-
-	resp, err := http.Get(base_query.String())
-	if err != nil {
-		log.Fatal(err)
-		fmt.Println("The following movie was not found: ", *search)
-	}
-	if resp.StatusCode != 200 {
-		log.Fatal(err)
-	}
-	actor_list := ResponseBody{}
-	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(&actor_list)
-	fmt.Println(actor_list)
-	for _, value := range strings.Split(actor_list.Actors, ", ") {
-		fmt.Println(value)
+	if query != "" {
+		url := build_url(query)
+		resp, err := http.Get(url.String())
+		if err != nil {
+			log.Fatal(err)
+			fmt.Println("The following movie was not found: ", *search)
+		}
+		if resp.StatusCode != 200 {
+			log.Fatal(err)
+		}
+		actor_list := ResponseBody{}
+		defer resp.Body.Close()
+		err = json.NewDecoder(resp.Body).Decode(&actor_list)
+		fmt.Println(actor_list)
+		for _, value := range strings.Split(actor_list.Actors, ", ") {
+			fmt.Println(value)
+		}
+	} else {
+		fmt.Println("None is a movie about my fist entering your face.")
 	}
 }
