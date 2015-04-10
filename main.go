@@ -24,6 +24,7 @@ func main() {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
+		fmt.Println("The following movie was not found: ", *search)
 	}
 	if resp.StatusCode != 200 {
 		log.Fatal(err)
