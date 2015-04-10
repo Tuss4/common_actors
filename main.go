@@ -44,7 +44,7 @@ func request(u string, q string, res *ResponseBody) {
 func main() {
 	flag.Parse()
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
-	if query != "" {
+	if *search != "" {
 		url := build_url(query)
 		actor_list := ResponseBody{}
 		request(url.String(), *search, &actor_list)
