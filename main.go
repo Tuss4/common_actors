@@ -15,6 +15,7 @@ type ResponseBody struct {
 }
 
 var search = flag.String("s", "", "search for a movie or series")
+var common = flag.String("c", "", "find common actors")
 var base_query url.URL
 
 func build_url(q string) url.URL {
@@ -52,6 +53,10 @@ func main() {
 		for _, value := range strings.Split(actor_list.Actors, ", ") {
 			fmt.Println(value)
 		}
+	} else if *common != "" {
+		films := strings.Split(*common, ", ")
+		fmt.Println(films)
+		fmt.Println("You're trying to find common actors between:", films[0], "and", films[1])
 	} else {
 		fmt.Println("None is a movie about my fist entering your face.")
 	}
