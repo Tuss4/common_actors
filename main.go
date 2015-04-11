@@ -16,6 +16,8 @@ type ResponseBody struct {
 
 var search = flag.String("s", "", "search for a movie or series")
 var common = flag.String("c", "", "find common actors")
+
+// var api_key = flag.String("k", "", "api key")
 var base_query url.URL
 
 func build_url(q string) url.URL {
@@ -45,6 +47,7 @@ func request(u string, q string, res *ResponseBody) {
 func main() {
 	flag.Parse()
 	query := strings.Join(strings.Split(strings.ToLower(*search), " "), "+")
+	fmt.Println(query)
 	if *search != "" {
 		url := build_url(query)
 		actor_list := ResponseBody{}

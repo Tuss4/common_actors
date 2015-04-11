@@ -4,7 +4,7 @@ leverage the OMDb API to find common actors in two movies or a list of actors in
 # Searching
 To search for a single movie or tv series:
 
-`go run main.go -s Enter the Dragon`
+`go run main.go -s "Enter the Dragon"`
 
 # Find common actors (WIP)
 `go run main.go -c "Enter the Dragon, Game of Death"
