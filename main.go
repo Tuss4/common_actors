@@ -67,7 +67,7 @@ func compare_request(url_1 string, url_2 string, movie_names []string, res_1 *Re
 func find_common(l1, l2 string) []string {
 	sl1 := strings.Split(l1, ", ")
 	sl2 := strings.Split(l2, ", ")
-	c_actors := make([]string, 1)
+	c_actors := make([]string, 0)
 	actor_map := make(map[string]bool)
 	for _, value := range sl1 {
 		actor_map[value] = true
@@ -99,12 +99,10 @@ func main() {
 		url_2 := build_url(query_2, "")
 		compare_request(
 			url_1.String(), url_2.String(), films, &list_one, &list_two)
-		fmt.Println(list_one.Actors)
-		fmt.Println(list_two.Actors)
 		common_actors := find_common(list_one.Actors, list_two.Actors)
 		fmt.Println(films[0], "and", films[1], "have the following actor(s) in common:")
 		for _, value := range common_actors {
-			fmt.Println(common_actors)
+			fmt.Println(value)
 		}
 	} else {
 		fmt.Println("None is a movie about my fist entering your face.")
