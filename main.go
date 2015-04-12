@@ -84,7 +84,6 @@ func findCommon(l1, l2 string) []string {
 	sl1 := strings.Split(l1, ", ")
 	sl2 := strings.Split(l2, ", ")
 	sl1 = append(sl1, sl2...)
-	fmt.Println(sl1)
 	c_actors := make([]string, 0)
 	actor_map := make(map[string]bool)
 	for _, value := range sl1 {
