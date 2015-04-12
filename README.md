@@ -1,4 +1,4 @@
-# common_actors
+# Actors in Common
 Leverage the [OMDb API](http://omdbapi.com) to find common actors in two movies or a list of actors in a particular film or tv series.
 
 # Searching
@@ -10,5 +10,5 @@ To specify a year:
 
 `go run main.go -s "Daredevil" -y 2015`
 
-# Find common actors
+# Find actors in common
 `go run main.go -c "Enter the Dragon, Game of Death"`
