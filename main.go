@@ -83,15 +83,16 @@ func compareRequest(url_1 string, url_2 string, movie_names []string, res_1 *Res
 func findCommon(l1, l2 string) []string {
 	sl1 := strings.Split(l1, ", ")
 	sl2 := strings.Split(l2, ", ")
+	sl1 = append(sl1, sl2...)
+	fmt.Println(sl1)
 	c_actors := make([]string, 0)
 	actor_map := make(map[string]bool)
 	for _, value := range sl1 {
-		actor_map[value] = true
-	}
-
-	for _, value := range sl2 {
 		if actor_map[value] {
 			c_actors = append(c_actors, value)
+		}
+		if !actor_map[value] {
+			actor_map[value] = true
 		}
 	}
 	return c_actors
