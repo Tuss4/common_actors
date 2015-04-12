@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	// "sync"
 )
 
 type ResponseBody struct {
@@ -62,6 +63,21 @@ func request(url string, movie_name string, res *ResponseBody) {
 func compareRequest(url_1 string, url_2 string, movie_names []string, res_1 *ResponseBody, res_2 *ResponseBody) {
 	request(url_1, movie_names[0], res_1)
 	request(url_2, movie_names[1], res_2)
+	// var wg sync.WaitGroup
+
+	// wg.Add(2)
+
+	// go func() {
+	//        request(url_1, movie_names[0], res_1)
+	//        wg.Done()
+	//    }
+
+	// go func () {
+	//        request(url_2, movie_names[1], res_2)
+	//        wg.Done()
+	//    }
+
+	//    wg.Wait()
 }
 
 func findCommon(l1, l2 string) []string {
@@ -85,13 +101,14 @@ func findCommon(l1, l2 string) []string {
 func main() {
 	flag.Parse()
 	query := formatQuery(*search)
-	if *search != "" {
+	switch {
+	case *search != "":
 		url := buildUrl(query, *year)
 		request(url.String(), *search, &single_list)
 		for _, value := range strings.Split(single_list.Actors, ", ") {
 			fmt.Println(value)
 		}
-	} else if *common != "" {
+	case *common != "":
 		films := strings.Split(*common, ", ")
 		query_1 := formatQuery(films[0])
 		url_1 := buildUrl(query_1, "")
@@ -104,7 +121,7 @@ func main() {
 		for _, value := range common_actors {
 			fmt.Println(value)
 		}
-	} else {
+	default:
 		fmt.Println("None is a movie about my fist entering your face.")
 	}
 }
