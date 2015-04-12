@@ -6,5 +6,9 @@ To search for a single movie or tv series:
 
 `go run main.go -s "Enter the Dragon"`
 
+To specify a year:
+
+`go run main.go -s "Daredevil" -y 2015`
+
 # Find common actors (WIP)
 `go run main.go -c "Enter the Dragon, Game of Death"
