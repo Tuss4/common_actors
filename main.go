@@ -16,16 +16,20 @@ type ResponseBody struct {
 
 var search = flag.String("s", "", "search for a movie or series")
 var common = flag.String("c", "", "find common actors")
+var year = flag.String("y", "", "specify a specific year")
 var single_list, list_one, list_two ResponseBody
-var base_query url.URL
 
-func build_url(query string) url.URL {
+func build_url(query, year string) url.URL {
+	var base_query url.URL
 	base_query.Scheme = "http"
 	base_query.Host = "omdbapi.com"
 	the_query := base_query.Query()
 	the_query.Set("r", "json")
 	the_query.Add("plot", "short")
 	the_query.Add("t", query)
+	if year != "" {
+		the_query.Add("y", year)
+	}
 	base_query.RawQuery = the_query.Encode()
 	return base_query
 }
@@ -56,23 +60,25 @@ func request(url string, movie_name string, res *ResponseBody) {
 }
 
 func compare_request(url_1 string, url_2 string, movie_names []string, res_1 *ResponseBody, res_2 *ResponseBody) {
-	resp, err := http.Get(url_1)
-	handle_error_n_status_code(err, resp, movie_names[0])
-	defer resp.Body.Close()
-	err = json.NewDecoder(resp.Body).Decode(res_1)
-
-	resp_2, err_2 := http.Get(url_2)
-	handle_error_n_status_code(err_2, resp_2, movie_names[1])
-	defer resp_2.Body.Close()
-	err_2 = json.NewDecoder(resp_2.Body).Decode(res_2)
-
+	request(url_1, movie_names[0], res_1)
+	request(url_2, movie_names[1], res_2)
 }
-func find_common(l1, l2 []string) map[string]bool {
+
+func find_common(l1, l2 string) []string {
+	sl1 := strings.Split(l1, ", ")
+	sl2 := strings.Split(l2, ", ")
+	c_actors := make([]string, 1)
 	actor_map := make(map[string]bool)
-	for _, value := range l1 {
+	for _, value := range sl1 {
 		actor_map[value] = true
 	}
-	return actor_map
+
+	for _, value := range sl2 {
+		if actor_map[value] {
+			c_actors = append(c_actors, value)
+		}
+	}
+	return c_actors
 
 }
 
@@ -80,21 +86,26 @@ func main() {
 	flag.Parse()
 	query := format_query(*search)
 	if *search != "" {
-		url := build_url(query)
+		url := build_url(query, *year)
 		request(url.String(), *search, &single_list)
 		for _, value := range strings.Split(single_list.Actors, ", ") {
 			fmt.Println(value)
 		}
 	} else if *common != "" {
 		films := strings.Split(*common, ", ")
-		fmt.Println("You're trying to find common actors between:", films[0], "and", films[1])
 		query_1 := format_query(films[0])
-		url_1 := build_url(query_1)
+		url_1 := build_url(query_1, "")
 		query_2 := format_query(films[1])
-		url_2 := build_url(query_2)
+		url_2 := build_url(query_2, "")
 		compare_request(
 			url_1.String(), url_2.String(), films, &list_one, &list_two)
+		fmt.Println(list_one.Actors)
 		fmt.Println(list_two.Actors)
+		common_actors := find_common(list_one.Actors, list_two.Actors)
+		fmt.Println(films[0], "and", films[1], "have the following actor(s) in common:")
+		for _, value := range common_actors {
+			fmt.Println(common_actors)
+		}
 	} else {
 		fmt.Println("None is a movie about my fist entering your face.")
 	}
