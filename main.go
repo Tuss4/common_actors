@@ -56,13 +56,23 @@ func handleErrorNStatusCode(err error, respsonse *http.Response, movie_name stri
 func request(url string, movie_name string, res *ResponseBody) {
 	resp, err := http.Get(url)
 	handleErrorNStatusCode(err, resp, movie_name)
-	defer resp.Body.Close()
+	// defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(res)
+	resp.Body.Close()
 }
 
-func compareRequest(url_1 string, url_2 string, movie_names []string, res_1 *ResponseBody, res_2 *ResponseBody) {
-	request(url_1, movie_names[0], res_1)
-	request(url_2, movie_names[1], res_2)
+func buildActorList(responses []ResponseBody) []string {
+	actor_list := make([]string, 0)
+	for _, value := range responses {
+		actor_list = append(actor_list, strings.Split(value.Actors, ", ")...)
+	}
+	return actor_list
+}
+
+func compareRequest(urls []url.URL, movie_names []string, reses []ResponseBody) {
+	for i := 0; i < len(movie_names); i++ {
+		request(urls[i].String(), movie_names[i], &reses[i])
+	}
 	// var wg sync.WaitGroup
 
 	// wg.Add(2)
@@ -80,13 +90,10 @@ func compareRequest(url_1 string, url_2 string, movie_names []string, res_1 *Res
 	//    wg.Wait()
 }
 
-func findCommon(l1, l2 string) []string {
-	sl1 := strings.Split(l1, ", ")
-	sl2 := strings.Split(l2, ", ")
-	sl1 = append(sl1, sl2...)
+func findCommon(actor_list []string) []string {
 	c_actors := make([]string, 0)
 	actor_map := make(map[string]bool)
-	for _, value := range sl1 {
+	for _, value := range actor_list {
 		if actor_map[value] {
 			c_actors = append(c_actors, value)
 		}
@@ -110,13 +117,16 @@ func main() {
 		}
 	case *common != "":
 		films := strings.Split(*common, ", ")
-		query_1 := formatQuery(films[0])
-		url_1 := buildUrl(query_1, "")
-		query_2 := formatQuery(films[1])
-		url_2 := buildUrl(query_2, "")
-		compareRequest(
-			url_1.String(), url_2.String(), films, &list_one, &list_two)
-		common_actors := findCommon(list_one.Actors, list_two.Actors)
+		queries := make([]string, len(films))
+		urls := make([]url.URL, len(films))
+		r_bodies := make([]ResponseBody, len(films))
+		for i := 0; i < len(films); i++ {
+			queries[i] = formatQuery(films[i])
+			urls[i] = buildUrl(queries[i], "")
+			r_bodies[i] = ResponseBody{}
+		}
+		compareRequest(urls, films, r_bodies)
+		common_actors := findCommon(buildActorList(r_bodies))
 		fmt.Println(films[0], "and", films[1], "have the following actor(s) in common:")
 		for _, value := range common_actors {
 			fmt.Println(value)
