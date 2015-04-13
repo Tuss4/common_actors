@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	// "sync"
 )
 
 type ResponseBody struct {
@@ -56,9 +55,8 @@ func handleErrorNStatusCode(err error, respsonse *http.Response, movie_name stri
 func request(url string, movie_name string, res *ResponseBody) {
 	resp, err := http.Get(url)
 	handleErrorNStatusCode(err, resp, movie_name)
-	// defer resp.Body.Close()
+	defer resp.Body.Close()
 	err = json.NewDecoder(resp.Body).Decode(res)
-	resp.Body.Close()
 }
 
 func buildActorLists(responses []ResponseBody) [][]string {
@@ -73,21 +71,6 @@ func compareRequest(urls []url.URL, movie_names []string, reses []ResponseBody) 
 	for i := 0; i < len(movie_names); i++ {
 		request(urls[i].String(), movie_names[i], &reses[i])
 	}
-	// var wg sync.WaitGroup
-
-	// wg.Add(2)
-
-	// go func() {
-	//        request(url_1, movie_names[0], res_1)
-	//        wg.Done()
-	//    }
-
-	// go func () {
-	//        request(url_2, movie_names[1], res_2)
-	//        wg.Done()
-	//    }
-
-	//    wg.Wait()
 }
 
 func findCommon(actor_lists [][]string) []string {
