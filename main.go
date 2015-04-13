@@ -73,6 +73,18 @@ func compareRequest(urls []url.URL, movie_names []string, reses []ResponseBody) 
 	}
 }
 
+func printCommonActors(c_actrs []string) {
+	if c_actrs == nil {
+		fmt.Println("The films have no actors in common.")
+	} else {
+		fmt.Println("The films have the following actor(s) in common:")
+		for _, value := range c_actrs {
+			fmt.Println(value)
+		}
+	}
+
+}
+
 func findCommon(actor_lists [][]string) []string {
 	var c_actors []string
 	for i := 0; i < len(actor_lists); i++ {
@@ -121,10 +133,7 @@ func main() {
 		}
 		compareRequest(urls, films, r_bodies)
 		common_actors := findCommon(buildActorLists(r_bodies))
-		fmt.Println("The films have the following actor(s) in common:")
-		for _, value := range common_actors {
-			fmt.Println(value)
-		}
+		printCommonActors(common_actors)
 	default:
 		fmt.Println("None is a movie about my fist entering your face.")
 	}
