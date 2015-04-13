@@ -61,10 +61,10 @@ func request(url string, movie_name string, res *ResponseBody) {
 	resp.Body.Close()
 }
 
-func buildActorList(responses []ResponseBody) []string {
-	actor_list := make([]string, 0)
-	for _, value := range responses {
-		actor_list = append(actor_list, strings.Split(value.Actors, ", ")...)
+func buildActorLists(responses []ResponseBody) [][]string {
+	actor_list := make([][]string, len(responses))
+	for i := 0; i < len(responses); i++ {
+		actor_list[i] = strings.Split(responses[i].Actors, ", ")
 	}
 	return actor_list
 }
@@ -90,19 +90,30 @@ func compareRequest(urls []url.URL, movie_names []string, reses []ResponseBody) 
 	//    wg.Wait()
 }
 
-func findCommon(actor_list []string) []string {
-	c_actors := make([]string, 0)
-	actor_map := make(map[string]bool)
-	for _, value := range actor_list {
-		if actor_map[value] {
-			c_actors = append(c_actors, value)
-		}
-		if !actor_map[value] {
-			actor_map[value] = true
+func findCommon(actor_lists [][]string) []string {
+	var c_actors []string
+	for i := 0; i < len(actor_lists); i++ {
+		compare_list := actor_lists[i]
+		stash_map := make(map[string]bool)
+		stash_list := make([]string, 0)
+		if i+1 < len(actor_lists) {
+			compare_list = append(compare_list, actor_lists[i+1]...)
+			for _, value := range compare_list {
+				if stash_map[value] {
+					stash_list = append(stash_list, value)
+				}
+				if !stash_map[value] {
+					stash_map[value] = true
+				}
+			}
+			c_actors = stash_list
+			if i+2 < len(actor_lists) {
+				new_list_set := [][]string{stash_list, actor_lists[i+2]}
+				findCommon(new_list_set)
+			}
 		}
 	}
 	return c_actors
-
 }
 
 func main() {
@@ -126,8 +137,8 @@ func main() {
 			r_bodies[i] = ResponseBody{}
 		}
 		compareRequest(urls, films, r_bodies)
-		common_actors := findCommon(buildActorList(r_bodies))
-		fmt.Println(films[0], "and", films[1], "have the following actor(s) in common:")
+		common_actors := findCommon(buildActorLists(r_bodies))
+		fmt.Println("The films have the following actor(s) in common:")
 		for _, value := range common_actors {
 			fmt.Println(value)
 		}
